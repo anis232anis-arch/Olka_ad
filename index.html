@@ -3,161 +3,399 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Olka Games</title>
+  <title>OLKA VIP APP</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    :root {
+      --bg: #0d1117;
+      --card-bg: #161b22;
+      --primary: #f3ba2f; /* لون الذهب / بينانس */
+      --secondary: #0088cc;
+      --text: #f0f6fc;
+      --text-dim: #8b949e;
+      --success: #2ea043;
+      --danger: #da3633;
+    }
+    * { 
+      box-sizing: border-box; 
+      font-family: system-ui, -apple-system, sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+    }
     body {
       margin: 0;
       padding: 16px;
+      background-color: var(--bg);
+      color: var(--text);
       text-align: center;
-      background-color: var(--tg-theme-bg-color, #121212);
-      color: var(--tg-theme-text-color, #ffffff);
+      user-select: none;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 16px;
+    .header-card {
+      background: linear-gradient(180deg, #1f242c 0%, var(--card-bg) 100%);
+      border: 1px solid #30363d;
+      border-radius: 20px;
+      padding: 20px 15px;
       margin-bottom: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
-    .score-board {
-      font-size: 24px;
+    .balance-label { 
+      font-size: 13px; 
+      color: var(--text-dim); 
+      text-transform: uppercase; 
+      letter-spacing: 1px; 
+    }
+    .balance-value { 
+      font-size: 38px; 
+      font-weight: 800; 
+      color: var(--primary); 
+      margin: 6px 0; 
+    }
+    .balance-sub { 
+      font-size: 13px; 
+      color: var(--text-dim); 
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #21262d;
+      padding: 5px;
+      border-radius: 12px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 5px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 14px;
       font-weight: bold;
-      color: #f1c40f;
-      margin-bottom: 15px;
+      border-radius: 8px;
+      cursor: pointer;
     }
-    .wheel-container {
+    .tab-btn.active {
+      background: var(--primary);
+      color: #000;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .game-card {
+      background: var(--card-bg);
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* لعبة النقر */
+    .tap-area { margin: 25px 0; }
+    .coin-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffe259, #ffa751);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      box-shadow: 0 0 30px rgba(243, 186, 47, 0.4);
+      cursor: pointer;
+      transition: transform 0.05s ease;
+    }
+    .coin-img:active { transform: scale(0.92); }
+
+    /* لعبة الصناديق */
+    .boxes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .box-item {
+      background: #21262d;
+      border: 1px solid #30363d;
+      padding: 25px 10px;
+      font-size: 28px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    /* الروليت */
+    .wheel-wrap {
       position: relative;
-      width: 220px;
-      height: 220px;
-      margin: 0 auto 15px auto;
+      width: 190px;
+      height: 190px;
+      margin: 15px auto;
     }
     .wheel {
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      border: 6px solid #f1c40f;
+      border: 4px solid var(--primary);
       background: conic-gradient(
-        #e74c3c 0deg 60deg,
-        #3498db 60deg 120deg,
-        #2ecc71 120deg 180deg,
-        #9b59b6 180deg 240deg,
-        #e67e22 240deg 300deg,
+        #e74c3c 0deg 60deg, 
+        #3498db 60deg 120deg, 
+        #2ecc71 120deg 180deg, 
+        #9b59b6 180deg 240deg, 
+        #e67e22 240deg 300deg, 
         #1abc9c 300deg 360deg
       );
-      transition: transform 3s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+      transition: transform 3s cubic-bezier(0.1, 0.7, 0.1, 1);
     }
-    .wheel-pointer {
+    .wheel-arrow {
       position: absolute;
-      top: -10px;
+      top: -8px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 20px solid #ffffff;
-      z-index: 10;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 16px solid #fff;
+      z-index: 5;
     }
-    .coin-btn {
-      width: 110px;
-      height: 110px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #f39c12, #d35400);
-      border: none;
-      font-size: 40px;
-      cursor: pointer;
-      box-shadow: 0 8px 15px rgba(0,0,0,0.3);
-      transition: transform 0.08s ease;
-    }
-    .coin-btn:active {
-      transform: scale(0.92);
-    }
-    .btn {
-      background-color: #0088cc;
-      color: #fff;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
+
+    /* حقول الإدخال والأزرار */
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
       border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
+      color: #fff;
+      font-size: 13px;
+      text-align: left;
+      direction: ltr;
+      margin-bottom: 12px;
     }
-    .btn:disabled {
-      background-color: #555;
+    .btn-action {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-action:disabled {
+      background: #30363d;
+      color: #8b949e;
       cursor: not-allowed;
+    }
+    .ref-box {
+      background: #0d1117;
+      border: 1px dashed var(--primary);
+      padding: 12px;
+      border-radius: 10px;
+      word-break: break-all;
+      font-size: 12px;
+      margin-bottom: 10px;
+      direction: ltr;
     }
   </style>
 </head>
 <body>
 
-  <div class="score-board">
-    💰 الرصيد: <span id="balance">0</span> نقطة
+  <div class="header-card">
+    <div class="balance-label">الرصيد الكلي</div>
+    <div class="balance-value"><span id="coinCount">0</span> 🪙</div>
+    <div class="balance-sub">القيمة المقدرة: <span id="usdVal">0.00</span> USDT</div>
   </div>
 
-  <div class="card">
-    <h3>🎰 عجلة الحظ (روليت)</h3>
-    <div class="wheel-container">
-      <div class="wheel-pointer"></div>
-      <div class="wheel" id="wheel"></div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('games')">🎮 الألعاب</button>
+    <button class="tab-btn" onclick="switchTab('referral')">👥 الإحالات</button>
+    <button class="tab-btn" onclick="switchTab('withdraw')">💳 السحب</button>
+  </div>
+
+  <div id="tab-games" class="section active">
+    <div class="game-card">
+      <h3>⚡ النقر السريع (+1 عملة)</h3>
+      <div class="tap-area">
+        <div class="coin-img" onclick="tapCoin()">🪙</div>
+      </div>
     </div>
-    <button class="btn" id="spin-btn" onclick="spinWheel()">جرّب حظك (تدوير)</button>
-    <p id="spin-result" style="height: 20px; font-weight: bold;"></p>
+
+    <div class="game-card">
+      <h3>🎁 خمن الصندوق الرابح</h3>
+      <p style="font-size: 13px; color: var(--text-dim);">اختر صندوقاً لتكشف عن جائزتك العشوائية:</p>
+      <div class="boxes-grid">
+        <div class="box-item" onclick="openBox(this)">📦</div>
+        <div class="box-item" onclick="openBox(this)">📦</div>
+        <div class="box-item" onclick="openBox(this)">📦</div>
+      </div>
+      <p id="box-result" style="margin-top: 10px; font-weight: bold; height: 18px;"></p>
+    </div>
+
+    <div class="game-card">
+      <h3>🎰 عجلة الحظ</h3>
+      <div class="wheel-wrap">
+        <div class="wheel-arrow"></div>
+        <div class="wheel" id="rouletteWheel"></div>
+      </div>
+      <button class="btn-action" id="spinBtn" onclick="spinWheel()">تدوير العجلة</button>
+      <p id="spin-result" style="margin-top: 10px; font-weight: bold; height: 18px;"></p>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>⚡ لعبة النقر لجمع النقاط</h3>
-    <p>اضغط على العملة لزيادة رصيدك (+1 كل نقرة):</p>
-    <button class="coin-btn" onclick="tapCoin()">🪙</button>
+  <div id="tab-referral" class="section">
+    <div class="game-card">
+      <h3>🔗 رابط الدعوة الخاص بك</h3>
+      <p style="font-size: 14px; color: var(--text-dim);">
+        اكسب <b>5 عملات</b> فوراً عن كل صديق ينضم للعبة عبر رابطك الخاص!
+      </p>
+      <div class="ref-box" id="refLinkText">...جاري التحميل</div>
+      <button class="btn-action" onclick="copyRefLink()">نسخ رابط الإحالة 📋</button>
+      <p id="copyAlert" style="color: var(--success); font-size: 13px; display: none; margin-top: 8px;">تم نسخ الرابط بنجاح!</p>
+    </div>
   </div>
 
-  <button class="btn" style="background: transparent; border: 1px solid #777;" onclick="tg.close()">إغلاق</button>
+  <div id="tab-withdraw" class="section">
+    <div class="game-card">
+      <h3>💸 سحب الأرباح (USDT BEP20)</h3>
+      <p style="font-size: 13px; color: var(--text-dim); line-height: 1.6;">
+        الحد الأدنى للسحب: <b>1000 عملة = 1$ USDT</b>.<br>
+        يتم الدفع عبر شبكة BNB Smart Chain (BEP20).
+      </p>
+
+      <input type="text" id="walletAddress" placeholder="أدخل عنوان محفظتك (0x...)" />
+
+      <button class="btn-action" id="withdrawBtn" onclick="requestWithdraw()" disabled>
+        طلب سحب 1 USDT
+      </button>
+      <p id="withdrawNotice" style="font-size: 12px; color: var(--danger); margin-top: 10px;">
+        رصيدك لم يبلغ 1000 عملة بعد للتمكن من السحب.
+      </p>
+    </div>
+  </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    let points = parseInt(localStorage.getItem('olka_points')) || 0;
-    const balanceEl = document.getElementById('balance');
-    balanceEl.innerText = points;
+    // جلب بيانات المستخدم
+    const user = tg.initDataUnsafe?.user || {};
+    const userId = user.id || 'guest_' + Math.floor(Math.random() * 1000);
 
-    function updatePoints(amount) {
-      points += amount;
-      balanceEl.innerText = points;
-      localStorage.setItem('olka_points', points);
+    // إدارة الرصيد
+    let balance = parseInt(localStorage.getItem('olka_vip_bal_' + userId)) || 0;
+
+    // معالجة الإحالات
+    const urlParams = new URLSearchParams(window.location.search);
+    const refBy = urlParams.get('startapp') || urlParams.get('ref');
+    if (refBy && !localStorage.getItem('olka_invited_' + userId)) {
+      localStorage.setItem('olka_invited_' + userId, 'true');
+      let refBal = parseInt(localStorage.getItem('olka_vip_bal_' + refBy)) || 0;
+      localStorage.setItem('olka_vip_bal_' + refBy, refBal + 5);
+    }
+
+    function syncUI() {
+      document.getElementById('coinCount').innerText = balance;
+      document.getElementById('usdVal').innerText = (balance / 1000).toFixed(2);
+      localStorage.setItem('olka_vip_bal_' + userId, balance);
+
+      const wBtn = document.getElementById('withdrawBtn');
+      const wNotice = document.getElementById('withdrawNotice');
+      if (balance >= 1000) {
+        wBtn.disabled = false;
+        wNotice.style.color = "var(--success)";
+        wNotice.innerText = "رصيدك مؤهل للسحب الآن!";
+      } else {
+        wBtn.disabled = true;
+        wNotice.style.color = "var(--danger)";
+        wNotice.innerText = `تحتاج إلى ${1000 - balance} عملة إضافية للوصول إلى حد السحب.`;
+      }
+    }
+
+    function addPoints(pts) {
+      balance += pts;
+      syncUI();
       if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
     }
 
-    function tapCoin() {
-      updatePoints(1);
+    // التبديل بين التبويبات
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+      event.target.classList.add('active');
+      document.getElementById('tab-' + name).classList.add('active');
     }
 
-    let currentRotation = 0;
-    let isSpinning = false;
-    const rewards = [10, 50, 0, 100, 5, 20];
+    // لعبة النقر
+    function tapCoin() {
+      addPoints(1);
+    }
 
-    function spinWheel() {
-      if (isSpinning) return;
-      isSpinning = true;
-
-      const spinBtn = document.getElementById('spin-btn');
-      const resultEl = document.getElementById('spin-result');
-      spinBtn.disabled = true;
-      resultEl.innerText = "العجلة تدور...";
-
-      const extraDegrees = Math.floor(Math.random() * 360) + 1440;
-      currentRotation += extraDegrees;
-      document.getElementById('wheel').style.transform = `rotate(${currentRotation}deg)`;
+    // لعبة الصناديق
+    let boxLocked = false;
+    function openBox(elem) {
+      if (boxLocked) return;
+      boxLocked = true;
+      const prizes = [2, 5, 10, 0, 15, 1];
+      const win = prizes[Math.floor(Math.random() * prizes.length)];
+      elem.innerText = win > 0 ? "💰" : "❌";
+      addPoints(win);
+      document.getElementById('box-result').innerText = win > 0 ? `ربحت ${win} عملات!` : "صندوق فارغ!";
 
       setTimeout(() => {
-        const prize = rewards[Math.floor(Math.random() * rewards.length)];
-        updatePoints(prize);
-        resultEl.innerText = prize > 0 ? `مبروك! ربحت ${prize} نقطة 🎉` : "للأسف! حظ أوفر في المرة القادمة 😢";
-        spinBtn.disabled = false;
-        isSpinning = false;
+        document.querySelectorAll('.box-item').forEach(b => b.innerText = "📦");
+        document.getElementById('box-result').innerText = "";
+        boxLocked = false;
+      }, 2000);
+    }
+
+    // الروليت
+    let rot = 0;
+    let spinning = false;
+    function spinWheel() {
+      if (spinning) return;
+      spinning = true;
+      const btn = document.getElementById('spinBtn');
+      const res = document.getElementById('spin-result');
+      btn.disabled = true;
+      res.innerText = "العجلة تدور...";
+
+      rot += Math.floor(Math.random() * 360) + 1440;
+      document.getElementById('rouletteWheel').style.transform = `rotate(${rot}deg)`;
+
+      setTimeout(() => {
+        const prizes = [5, 10, 20, 50, 0, 15];
+        const prize = prizes[Math.floor(Math.random() * prizes.length)];
+        addPoints(prize);
+        res.innerText = prize > 0 ? `ربحت ${prize} عملة! 🎉` : "حظ أوفر! 😢";
+        btn.disabled = false;
+        spinning = false;
       }, 3000);
     }
-  </script>
-</body>
-</html>
+
+    // رابط الإحالة
+    const myRefLink = `https://t.me/OLKA_AD_Bot/Olka?startapp=${userId}`;
+    document.getElementById('refLinkText').innerText = myRefLink;
+
+    function copyRefLink() {
+      navigator.clipboard.writeText(myRefLink);
+      const alert = document.getElementById('copyAlert');
+      alert.style.display = "block";
+      setTimeout(() => alert.style.display = "none", 2500);
+    }
+
+    // إرسال طلب السحب لحسابك الشخصي
+    function requestWithdraw() {
+      const address = document.getElementById('walletAddress').value.trim();
+      if (!address || !address.startsWith('0x') || address.length < 30) {
+        alert("يرجى إدخال عنوان محفظة USDT (BEP20) يبدأ بـ 0x بشكل صحيح.");
+        return;
+      }
+
+      // خصم الرصيد
+      balance -= 1000;
+      syncUI();
+
+      const senderName = user.username ? `@${user.username}` : (user.first_name || "مستخدم");
+      const textMsg = encodeURIComponent(
+        `🚨 طلب سحب جديد (1 USDT):\
