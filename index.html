@@ -462,14 +462,14 @@
       }, 1600);
     }
 
-    // زوايا الروليت الهندسية الدقيقة لمطابقة مؤشر القمة
+    // زوايا الروليت الهندسية الدقيقة
     const wheelSegments = [
-      { prize: 0,  angle: 0 },    // رمادي
-      { prize: 5,  angle: 300 },  // أخضر
-      { prize: 15, angle: 240 },  // بنفسجي
-      { prize: 20, angle: 180 },  // برتقالي
-      { prize: 10, angle: 120 },  // أحمر
-      { prize: 50, angle: 60 }    // أزرق
+      { prize: 0,  angle: 0 },
+      { prize: 5,  angle: 300 },
+      { prize: 15, angle: 240 },
+      { prize: 20, angle: 180 },
+      { prize: 10, angle: 120 },
+      { prize: 50, angle: 60 }
     ];
 
     let totalDegree = 0;
@@ -502,9 +502,8 @@
       }, 3500);
     }
 
-    // ضع يوزر بوتك الجديد هنا مكان YOUR_BOT_USERNAME
+    // اسم يوزر البوت مضبوط وجاهز
     const botUsername = "OlkaVip_bot";
-";
     const myRefLink = `https://t.me/${botUsername}?startapp=${userId}`;
     const refBox = document.getElementById('refLinkText');
     if (refBox) refBox.innerText = myRefLink;
@@ -518,7 +517,7 @@
       }
     }
 
-    // طلب السحب (ضع يوزرك الشخصي مكان YOUR_TELEGRAM_USERNAME)
+    // طلب السحب (استبدل YOUR_TELEGRAM_USERNAME بيوزرك الشخصي لاستلام طلبات السحب)
     function requestWithdraw() {
       const address = document.getElementById('walletAddress').value.trim();
       if (!address || !address.startsWith('0x') || address.length < 30) {
